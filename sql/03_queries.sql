@@ -46,3 +46,21 @@ JOIN brands b ON p.brand_id = b.brand_id
 WHERE i.quantity_on_hand < 10
 ORDER BY i.quantity_on_hand ASC;
 
+-- 5) Brand performance summary (CTE = Advanced)
+WITH brand_metrics AS (
+  SELECT
+  b.brand_id,
+  b.brand_name,
+  ROUND(AVG(p.list_price), 2) AS avg_price,
+  ROUND(AVG(r.ratig), 2) AS avg_rating,
+  ROUND(100.0 * AVG(r.recommend), 1) AS pct_recommended,
+  COUNT(r.review_id) AS review_count
+  FROM brands b
+  JOIN products p ON p.brand_id = b.brand_id
+  LEFT JOIN reviews r ON r.product_id = p.product_id
+  GROUP BY b.brand_id, b.brand_name
+)
+SELECT *
+FROM brand_metrics
+ORDER BY avg_rating DESC, pct_recommended DESC, avg_price DESC;
+
